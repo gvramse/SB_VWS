@@ -72,16 +72,6 @@
                             <i class="fas fa-home"></i> Home
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'task_list' %}">
-                            <i class="fas fa-list"></i> My Tasks
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'task_create' %}">
-                            <i class="fas fa-plus"></i> New Task
-                        </a>
-                    </li>
                     {% if user.is_staff or user.is_superuser %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'assignee_list' %}">

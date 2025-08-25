@@ -16,6 +16,100 @@
     </div>
 </div>
 
+<!-- Navigation Buttons Row -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{% url 'dashboard' %}" class="btn btn-primary">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="{% url 'home' %}" class="btn btn-outline-primary">
+                <i class="fas fa-home"></i> Home
+            </a>
+            {% if user.is_staff or user.is_superuser %}
+            <a href="{% url 'assignee_list' %}" class="btn btn-outline-info">
+                <i class="fas fa-users"></i> Manage Assignees
+            </a>
+            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#adminPanel" aria-expanded="false" aria-controls="adminPanel">
+                <i class="fas fa-shield-alt"></i> Admin Panel
+            </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Admin Section for Assignee Management (Collapsible) -->
+{% if user.is_staff or user.is_superuser %}
+<div class="collapse" id="adminPanel">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-shield-alt"></i> Admin Panel - System Overview</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Admin Statistics -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h3 class="text-primary">{{ admin_stats.total_assignees|default:0 }}</h3>
+                                <p class="text-muted mb-0">Total Assignees</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h3 class="text-success">{{ admin_stats.total_users|default:0 }}</h3>
+                                <p class="text-muted mb-0">Total Users</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h3 class="text-info">{{ admin_stats.total_all_tasks|default:0 }}</h3>
+                                <p class="text-muted mb-0">All Tasks</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h3 class="text-warning">{{ stats.total_tasks }}</h3>
+                                <p class="text-muted mb-0">Your Tasks</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Admin Actions -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-users text-primary"></i> Current Assignees</h6>
+                            <p class="text-muted">Manage volunteer assignees and their information</p>
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'assignee_list' %}" class="btn btn-primary">
+                                    <i class="fas fa-users"></i> Manage Assignees
+                                </a>
+                                <a href="{% url 'assignee_create' %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-plus"></i> Add New Assignee
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-upload text-success"></i> Bulk Operations</h6>
+                            <p class="text-muted">Upload multiple assignees at once using CSV files</p>
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'assignee_list' %}" class="btn btn-success">
+                                    <i class="fas fa-upload"></i> Bulk Upload
+                                </a>
+                                <a href="#" class="btn btn-outline-success" onclick="downloadCSVTemplate()">
+                                    <i class="fas fa-download"></i> Download Template
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <div class="row mb-4">
     <div class="col-md-3">
         <a href="{% url 'task_list' %}" class="text-decoration-none">
@@ -87,76 +181,6 @@
     </div>
 </div>
 
-<!-- Admin Section for Assignee Management -->
-{% if user.is_staff or user.is_superuser %}
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card border-primary">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="fas fa-shield-alt"></i> Admin Panel - System Overview</h5>
-            </div>
-            <div class="card-body">
-                <!-- Admin Statistics -->
-                <div class="row mb-4">
-                    <div class="col-md-3">
-                        <div class="text-center">
-                            <h3 class="text-primary">{{ admin_stats.total_assignees|default:0 }}</h3>
-                            <p class="text-muted mb-0">Total Assignees</p>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="text-center">
-                            <h3 class="text-success">{{ admin_stats.total_users|default:0 }}</h3>
-                            <p class="text-muted mb-0">Total Users</p>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="text-center">
-                            <h3 class="text-info">{{ admin_stats.total_all_tasks|default:0 }}</h3>
-                            <p class="text-muted mb-0">All Tasks</p>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="text-center">
-                            <h3 class="text-warning">{{ stats.total_tasks }}</h3>
-                            <p class="text-muted mb-0">Your Tasks</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Admin Actions -->
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6><i class="fas fa-users text-primary"></i> Current Assignees</h6>
-                        <p class="text-muted">Manage volunteer assignees and their information</p>
-                        <div class="d-grid gap-2">
-                            <a href="{% url 'assignee_list' %}" class="btn btn-primary">
-                                <i class="fas fa-users"></i> Manage Assignees
-                            </a>
-                            <a href="{% url 'assignee_create' %}" class="btn btn-outline-primary">
-                                <i class="fas fa-plus"></i> Add New Assignee
-                            </a>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <h6><i class="fas fa-upload text-success"></i> Bulk Operations</h6>
-                        <p class="text-muted">Upload multiple assignees at once using CSV files</p>
-                        <div class="d-grid gap-2">
-                            <a href="{% url 'assignee_list' %}" class="btn btn-success">
-                                <i class="fas fa-upload"></i> Bulk Upload
-                            </a>
-                            <a href="#" class="btn btn-outline-success" onclick="downloadCSVTemplate()">
-                                <i class="fas fa-download"></i> Download Template
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endif %}
-
 <div class="row">
     <div class="col-md-8">
         <div class="card">
@@ -202,12 +226,6 @@
                     <a href="{% url 'task_list' %}" class="btn btn-outline-secondary">
                         <i class="fas fa-list"></i> View All Tasks
                     </a>
-                    {% if user.is_staff or user.is_superuser %}
-                    <hr>
-                    <a href="{% url 'assignee_list' %}" class="btn btn-info">
-                        <i class="fas fa-users"></i> Manage Assignees
-                    </a>
-                    {% endif %}
                 </div>
             </div>
         </div>
@@ -232,5 +250,15 @@ function downloadCSVTemplate() {
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
 }
+
+// Add smooth animation to admin panel toggle
+document.addEventListener('DOMContentLoaded', function() {
+    const adminPanel = document.getElementById('adminPanel');
+    if (adminPanel) {
+        adminPanel.addEventListener('show.bs.collapse', function() {
+            this.style.transition = 'all 0.3s ease-in-out';
+        });
+    }
+});
 </script>
 {% endblock %}
