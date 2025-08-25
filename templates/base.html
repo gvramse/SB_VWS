@@ -82,6 +82,13 @@
                             <i class="fas fa-plus"></i> New Task
                         </a>
                     </li>
+                    {% if user.is_staff or user.is_superuser %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'assignee_list' %}">
+                            <i class="fas fa-users"></i> Manage Assignees
+                        </a>
+                    </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>

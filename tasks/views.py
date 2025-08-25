@@ -183,6 +183,14 @@ def dashboard(request):
         'recent_tasks': recent_tasks,
     }
     
+    # Add admin-specific data
+    if request.user.is_staff or request.user.is_superuser:
+        context['admin_stats'] = {
+            'total_assignees': Assignee.objects.count(),
+            'total_users': User.objects.count(),
+            'total_all_tasks': Task.objects.count(),
+        }
+    
     return render(request, 'tasks/dashboard.html', context)
 
 
