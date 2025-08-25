@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome - Samskrita Bharati USA Volunteer Portal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="hero-section text-center py-5 mb-5" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 15px;">
+            <div class="container">
+                <i class="fas fa-om fa-4x text-warning mb-4"></i>
+                <h1 class="display-4 text-primary mb-3">नमस्ते!</h1>
+                <h2 class="h3 text-secondary mb-4">
+                    {% if user.is_authenticated %}
+                        Welcome back to Samskrita Bharati USA, {{ user.get_full_name|default:user.username }}!
+                    {% else %}
+                        Welcome to Samskrita Bharati USA
+                    {% endif %}
+                </h2>
+                <p class="lead text-muted mb-4">
+                    {% if user.is_authenticated %}
+                        Thank you for being part of our volunteer community dedicated to promoting Sanskrit language and Bharatiya culture across America.
+                    {% else %}
+                        Join our volunteer community dedicated to promoting Sanskrit language and Bharatiya culture across America.
+                    {% endif %}
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+                        </a>
+                        <a href="{% url 'task_list' %}" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-list"></i> My Tasks
+                        </a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-sign-in-alt"></i> Volunteer Login
+                        </a>
+                        <a href="{% url 'signup' %}" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-user-plus"></i> Join as Volunteer
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="row mb-5">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-globe-americas fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Main Organization</h5>
+                        <p class="card-text">
+                            Learn about our mission, programs, and Sanskrit learning opportunities across the United States.
+                        </p>
+                        <a href="https://samskritabharatiusa.org/" target="_blank" class="btn btn-outline-primary">
+                            <i class="fas fa-external-link-alt"></i> Visit Website
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-graduation-cap fa-3x text-success mb-3"></i>
+                        <h5 class="card-title">SAFL Program</h5>
+                        <p class="card-text">
+                            Sanskrit As a Foreign Language - structured learning program for students.
+                        </p>
+                        <a href="https://safl.org/" target="_blank" class="btn btn-outline-success">
+                            <i class="fas fa-external-link-alt"></i> Learn Sanskrit
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-book fa-3x text-warning mb-3"></i>
+                        <h5 class="card-title">Bookstore</h5>
+                        <p class="card-text">
+                            Discover Sanskrit books, learning materials, and cultural resources for all levels.
+                        </p>
+                        <a href="https://www.sbusapustakapanah.org/" target="_blank" class="btn btn-outline-warning">
+                            <i class="fas fa-external-link-alt"></i> Browse Books
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card bg-light">
+            <div class="card-body">
+                <h4 class="text-center mb-4">
+                    <i class="fas fa-hands-helping text-primary"></i> Volunteer Opportunities
+                </h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-chalkboard-teacher text-success"></i> Teaching & Training</h6>
+                        <ul class="list-unstyled ms-3">
+                            <li><i class="fas fa-circle fa-sm text-muted"></i> Sanskrit language instruction</li>
+                            <li><i class="fas fa-circle fa-sm text-muted"></i> Cultural workshops</li>
+                            <li><i class="fas fa-circle fa-sm text-muted"></i> Teacher training programs</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-calendar-alt text-info"></i> Events & Coordination</h6>
+                        <ul class="list-unstyled ms-3">
+                            <li><i class="fas fa-circle fa-sm text-muted"></i> Event planning and management</li>
+                            <li><i class="fas fa-circle fa-sm text-muted"></i> Community outreach</li>
+                            <li><i class="fas fa-circle fa-sm text-muted"></i> Administrative support</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="text-center mt-4">
+                    <a href="{% url 'signup' %}" class="btn btn-primary">
+                        <i class="fas fa-heart"></i> Start Volunteering Today
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-12 text-center">
+                <blockquote class="blockquote">
+                    <p class="mb-3 text-muted fst-italic">
+                        "भाषासु मुख्या मधुरा दिव्या गीर्वाणभारती।"
+                    </p>
+                    <footer class="blockquote-footer">
+                        <cite title="Sanskrit Verse">Among all languages, Sanskrit is the chief, sweet, and divine language</cite>
+                    </footer>
+                </blockquote>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

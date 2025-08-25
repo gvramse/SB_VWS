@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+
+{% block title %}My Volunteer Tasks - Samskrita Bharati USA{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-list"></i> My Volunteer Tasks</h1>
+    <a href="{% url 'task_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> New Task
+    </a>
+</div>
+
+<!-- Quick Status Filters -->
+<div class="mb-3">
+    <div class="btn-group" role="group" aria-label="Status filters">
+        <a href="{% url 'task_list' %}" class="btn {% if not status_filter %}btn-primary{% else %}btn-outline-primary{% endif %}">
+            <i class="fas fa-list"></i> All
+        </a>
+        <a href="{% url 'task_list' %}?status=pending" class="btn {% if status_filter == 'pending' %}btn-warning{% else %}btn-outline-warning{% endif %}">
+            <i class="fas fa-clock"></i> Pending
+        </a>
+        <a href="{% url 'task_list' %}?status=in_progress" class="btn {% if status_filter == 'in_progress' %}btn-info{% else %}btn-outline-info{% endif %}">
+            <i class="fas fa-spinner"></i> In Progress
+        </a>
+        <a href="{% url 'task_list' %}?status=completed" class="btn {% if status_filter == 'completed' %}btn-success{% else %}btn-outline-success{% endif %}">
+            <i class="fas fa-check"></i> Completed
+        </a>
+        <a href="{% url 'task_list' %}?status=cancelled" class="btn {% if status_filter == 'cancelled' %}btn-danger{% else %}btn-outline-danger{% endif %}">
+            <i class="fas fa-times"></i> Cancelled
+        </a>
+    </div>
+</div>
+
+<!-- Search and Filter -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-6">
+                <input type="text" class="form-control" name="search" placeholder="Search tasks..." value="{{ search_query }}">
+            </div>
+            <div class="col-md-4">
+                <select name="status" class="form-select">
+                    <option value="">All Status</option>
+                    {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="fas fa-search"></i> Filter
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tasks List -->
+{% if page_obj %}
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Assignee</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Dates</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in page_obj %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'task_detail' task.pk %}" class="text-decoration-none fw-bold">
+                                {{ task.title }}
+                            </a>
+                            {% if task.description %}
+                            <br><small class="text-muted">{{ task.description|truncatewords:8 }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if task.assignee_name %}
+                                <strong>{{ task.assignee_name }}</strong>
+                                {% if task.assignee_email %}
+                                    <br><small class="text-muted">{{ task.assignee_email }}</small>
+                                {% endif %}
+                                {% if task.assignee_location %}
+                                    <br><small class="text-muted"><i class="fas fa-map-marker-alt"></i> {{ task.assignee_location }}</small>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">Unassigned</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge {{ task.get_priority_badge_class }}">
+                                {{ task.get_priority_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <select class="form-select form-select-sm status-select" data-task-id="{{ task.pk }}">
+                                {% for value, label in status_choices %}
+                                <option value="{{ value }}" {% if task.status == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td>
+                            {% if task.start_date %}
+                                <small><strong>Start:</strong> {{ task.start_date|date:"M d, Y" }}</small><br>
+                            {% endif %}
+                            {% if task.due_date %}
+                                <small><strong>Due:</strong> {{ task.due_date|date:"M d, Y" }}</small>
+                            {% else %}
+                                <small class="text-muted">No due date</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'task_detail' task.pk %}" class="btn btn-outline-info" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'task_update' task.pk %}" class="btn btn-outline-warning" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'task_delete' task.pk %}" class="btn btn-outline-danger" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<nav aria-label="Tasks pagination" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">Previous</a>
+        </li>
+        {% endif %}
+        
+        {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <li class="page-item active">
+            <span class="page-link">{{ num }}</span>
+        </li>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">{{ num }}</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+        
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">Next</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="text-center py-5">
+    <i class="fas fa-tasks fa-3x text-muted mb-3"></i>
+    <h3>No tasks found</h3>
+    <p class="text-muted">{% if search_query or status_filter %}Try adjusting your search criteria{% else %}Get started by creating your first task{% endif %}</p>
+    <a href="{% url 'task_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Create New Task
+    </a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const statusSelects = document.querySelectorAll('.status-select');
+    statusSelects.forEach(select => {
+        select.addEventListener('change', function() {
+            const taskId = this.dataset.taskId;
+            const newStatus = this.value;
+            
+            fetch(`/tasks/${taskId}/status/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({status: newStatus})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    const alert = document.createElement('div');
+                    alert.className = 'alert alert-success alert-dismissible fade show';
+                    alert.innerHTML = `
+                        ${data.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    document.querySelector('main').insertBefore(alert, document.querySelector('main').firstChild);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,29 @@
+# Core Django dependencies
+Django==5.2.5
+python-dotenv==1.0.0
+
+# Database drivers
+psycopg2-binary==2.9.10  # PostgreSQL (for production)
+# Note: SQLite is included with Python for development
+
+# Enterprise SSO packages
+django-allauth==65.11.0          # Social authentication (Google, GitHub, etc.)
+djangosaml2==1.11.1              # SAML SSO for enterprise
+django-oauth-toolkit==3.0.1      # OAuth2 provider
+PyJWT==2.10.1                    # JWT handling for authentication
+
+# Email and notifications
+# Built-in Django email backend used
+
+# Production dependencies (uncomment for production deployment)
+# gunicorn==21.2.0                # WSGI HTTP Server
+# whitenoise==6.5.0               # Static file serving
+# django-cors-headers==4.2.0      # CORS handling
+
+# LDAP authentication (requires build tools on Windows)
+# django-auth-ldap==5.2.0         # Active Directory/LDAP integration
+
+# Development dependencies (uncomment for development)
+# django-debug-toolbar==4.2.0     # Development debugging
+# django-extensions==3.2.3        # Useful Django extensions
+# ipython==8.15.0                 # Enhanced Python shell
