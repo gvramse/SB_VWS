@@ -15,10 +15,11 @@ PyJWT==2.10.1                    # JWT handling for authentication
 # Email and notifications
 # Built-in Django email backend used
 
-# Production dependencies (uncomment for production deployment)
-# gunicorn==21.2.0                # WSGI HTTP Server
-# whitenoise==6.5.0               # Static file serving
-# django-cors-headers==4.2.0      # CORS handling
+# Production dependencies
+gunicorn==21.2.0                # WSGI HTTP Server
+whitenoise==6.5.0               # Static file serving
+django-cors-headers==4.2.0      # CORS handling
+dj-database-url==2.1.0          # Database URL parsing
 
 # LDAP authentication (requires build tools on Windows)
 # django-auth-ldap==5.2.0         # Active Directory/LDAP integration
