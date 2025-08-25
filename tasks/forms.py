@@ -25,6 +25,32 @@ class AssigneeForm(forms.ModelForm):
         }
 
 
+class BulkAssigneeUploadForm(forms.Form):
+    """Form for bulk uploading assignees via CSV"""
+    csv_file = forms.FileField(
+        label='CSV File',
+        help_text='Upload a CSV file with columns: Name, Email, Location',
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'accept': '.csv',
+            'id': 'csv-upload'
+        })
+    )
+    
+    def clean_csv_file(self):
+        csv_file = self.cleaned_data['csv_file']
+        
+        # Check file extension
+        if not csv_file.name.endswith('.csv'):
+            raise forms.ValidationError('Please upload a CSV file.')
+        
+        # Check file size (max 5MB)
+        if csv_file.size > 5 * 1024 * 1024:
+            raise forms.ValidationError('File size must be less than 5MB.')
+        
+        return csv_file
+
+
 class TaskForm(forms.ModelForm):
     class Meta:
         model = Task

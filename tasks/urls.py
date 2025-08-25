@@ -16,6 +16,7 @@ urlpatterns = [
     path('assignees/create/', views.assignee_create, name='assignee_create'),
     path('assignees/<int:pk>/edit/', views.assignee_update, name='assignee_update'),
     path('assignees/<int:pk>/delete/', views.assignee_delete, name='assignee_delete'),
+    path('assignees/bulk-upload/', views.bulk_assignee_upload, name='bulk_assignee_upload'),
     path('assignees/get-info/', views.get_assignee_info, name='get_assignee_info'),
     
     path('auth/signup/', views.SignUpView.as_view(), name='signup'),

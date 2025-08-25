@@ -5,13 +5,64 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><i class="fas fa-users"></i> Manage Assignees</h1>
-    <a href="{% url 'assignee_create' %}" class="btn btn-primary">
-        <i class="fas fa-plus"></i> New Assignee
-    </a>
+    <div>
+        <a href="{% url 'assignee_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> New Assignee
+        </a>
+    </div>
 </div>
 
+<!-- Bulk Upload Section -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-upload"></i> Bulk Upload Assignees</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                <form method="post" action="{% url 'bulk_assignee_upload' %}" enctype="multipart/form-data" id="bulk-upload-form">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="{{ bulk_upload_form.csv_file.id_for_label }}" class="form-label">
+                            {{ bulk_upload_form.csv_file.label }}
+                        </label>
+                        {{ bulk_upload_form.csv_file }}
+                        <div class="form-text">{{ bulk_upload_form.csv_file.help_text }}</div>
+                        {% if bulk_upload_form.csv_file.errors %}
+                            <div class="text-danger">{{ bulk_upload_form.csv_file.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <button type="submit" class="btn btn-success" id="upload-btn">
+                        <i class="fas fa-upload"></i> Upload CSV
+                    </button>
+                </form>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h6><i class="fas fa-info-circle text-info"></i> CSV Format</h6>
+                        <p class="small mb-2">Your CSV file should have these columns:</p>
+                        <ul class="small mb-2">
+                            <li><strong>Name</strong> - Full name of assignee</li>
+                            <li><strong>Email</strong> - Email address</li>
+                            <li><strong>Location</strong> - City/State/Location</li>
+                        </ul>
+                        <a href="#" class="btn btn-sm btn-outline-info" id="download-template">
+                            <i class="fas fa-download"></i> Download Template
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assignees List -->
 {% if assignees %}
 <div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-list"></i> Current Assignees ({{ assignees.count }})</h5>
+    </div>
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-hover">
@@ -63,10 +114,15 @@
 <div class="text-center py-5">
     <i class="fas fa-users fa-3x text-muted mb-3"></i>
     <h3>No assignees found</h3>
-    <p class="text-muted">Get started by creating your first assignee</p>
-    <a href="{% url 'assignee_create' %}" class="btn btn-primary">
-        <i class="fas fa-plus"></i> Create New Assignee
-    </a>
+    <p class="text-muted">Get started by creating your first assignee or uploading a CSV file</p>
+    <div class="d-flex justify-content-center gap-2">
+        <a href="{% url 'assignee_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Create New Assignee
+        </a>
+        <button class="btn btn-success" onclick="document.getElementById('csv-upload').click()">
+            <i class="fas fa-upload"></i> Upload CSV
+        </button>
+    </div>
 </div>
 {% endif %}
 
@@ -75,4 +131,56 @@
         <i class="fas fa-arrow-left"></i> Back to Tasks
     </a>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const bulkUploadForm = document.getElementById('bulk-upload-form');
+    const uploadBtn = document.getElementById('upload-btn');
+    const csvUpload = document.getElementById('csv-upload');
+    
+    // Handle file selection
+    csvUpload.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            const fileName = this.files[0].name;
+            uploadBtn.innerHTML = `<i class="fas fa-upload"></i> Upload ${fileName}`;
+        } else {
+            uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Upload CSV';
+        }
+    });
+    
+    // Handle form submission
+    bulkUploadForm.addEventListener('submit', function(e) {
+        if (!csvUpload.files.length) {
+            e.preventDefault();
+            alert('Please select a CSV file to upload.');
+            return;
+        }
+        
+        // Show loading state
+        uploadBtn.disabled = true;
+        uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+    });
+    
+    // Download template functionality
+    document.getElementById('download-template').addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Create CSV content
+        const csvContent = 'Name,Email,Location\nJohn Doe,john.doe@example.com,New York, NY\nJane Smith,jane.smith@example.com,Los Angeles, CA\nBob Johnson,bob.johnson@example.com,Chicago, IL';
+        
+        // Create blob and download
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'assignees_template.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    });
+});
+</script>
 {% endblock %}

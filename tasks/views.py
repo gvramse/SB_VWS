@@ -11,7 +11,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from .models import Task, Assignee
-from .forms import TaskForm, CustomUserCreationForm, AssigneeForm
+from .forms import TaskForm, CustomUserCreationForm, AssigneeForm, BulkAssigneeUploadForm
+import csv
+import io
 import json
 
 
@@ -189,7 +191,11 @@ def dashboard(request):
 def assignee_list(request):
     """Display list of all assignees"""
     assignees = Assignee.objects.all()
-    return render(request, 'tasks/assignee_list.html', {'assignees': assignees})
+    bulk_upload_form = BulkAssigneeUploadForm()
+    return render(request, 'tasks/assignee_list.html', {
+        'assignees': assignees,
+        'bulk_upload_form': bulk_upload_form
+    })
 
 
 @login_required
@@ -242,6 +248,72 @@ def assignee_delete(request, pk):
         return redirect('assignee_list')
     
     return render(request, 'tasks/assignee_confirm_delete.html', {'assignee': assignee})
+
+
+@login_required
+def bulk_assignee_upload(request):
+    """Handle bulk upload of assignees via CSV"""
+    if request.method == 'POST':
+        form = BulkAssigneeUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            csv_file = form.cleaned_data['csv_file']
+            
+            try:
+                # Read CSV file
+                decoded_file = csv_file.read().decode('utf-8')
+                csv_data = csv.DictReader(io.StringIO(decoded_file))
+                
+                success_count = 0
+                error_count = 0
+                errors = []
+                
+                for row_num, row in enumerate(csv_data, start=2):  # Start at 2 because row 1 is header
+                    try:
+                        # Validate required fields
+                        if not row.get('Name') or not row.get('Email') or not row.get('Location'):
+                            errors.append(f"Row {row_num}: Missing required fields (Name, Email, Location)")
+                            error_count += 1
+                            continue
+                        
+                        # Check if assignee already exists
+                        if Assignee.objects.filter(email=row['Email']).exists():
+                            errors.append(f"Row {row_num}: Email '{row['Email']}' already exists")
+                            error_count += 1
+                            continue
+                        
+                        # Create new assignee
+                        Assignee.objects.create(
+                            name=row['Name'].strip(),
+                            email=row['Email'].strip(),
+                            location=row['Location'].strip()
+                        )
+                        success_count += 1
+                        
+                    except Exception as e:
+                        errors.append(f"Row {row_num}: {str(e)}")
+                        error_count += 1
+                
+                # Show results
+                if success_count > 0:
+                    messages.success(request, f'Successfully uploaded {success_count} assignees!')
+                
+                if error_count > 0:
+                    for error in errors[:5]:  # Show first 5 errors
+                        messages.error(request, error)
+                    if len(errors) > 5:
+                        messages.warning(request, f'... and {len(errors) - 5} more errors. Check the CSV format.')
+                
+                return redirect('assignee_list')
+                
+            except Exception as e:
+                messages.error(request, f'Error processing CSV file: {str(e)}')
+                return redirect('assignee_list')
+        else:
+            for error in form.errors.values():
+                messages.error(request, error)
+            return redirect('assignee_list')
+    
+    return redirect('assignee_list')
 
 
 @login_required
