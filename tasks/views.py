@@ -10,8 +10,8 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
-from .models import Task
-from .forms import TaskForm, CustomUserCreationForm
+from .models import Task, Assignee
+from .forms import TaskForm, CustomUserCreationForm, AssigneeForm
 import json
 
 
@@ -84,6 +84,9 @@ def task_create(request):
         if form.is_valid():
             task = form.save(commit=False)
             task.owner = request.user
+            # Set assigned_by to current user if not specified
+            if not task.assigned_by:
+                task.assigned_by = request.user
             task.save()
             messages.success(request, 'Task created successfully!')
             return redirect('task_list')
@@ -179,6 +182,84 @@ def dashboard(request):
     }
     
     return render(request, 'tasks/dashboard.html', context)
+
+
+# Assignee Management Views
+@login_required
+def assignee_list(request):
+    """Display list of all assignees"""
+    assignees = Assignee.objects.all()
+    return render(request, 'tasks/assignee_list.html', {'assignees': assignees})
+
+
+@login_required
+def assignee_create(request):
+    """Create a new assignee"""
+    if request.method == 'POST':
+        form = AssigneeForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Assignee created successfully!')
+            return redirect('assignee_list')
+    else:
+        form = AssigneeForm()
+    
+    return render(request, 'tasks/assignee_form.html', {
+        'form': form,
+        'title': 'Create New Assignee'
+    })
+
+
+@login_required
+def assignee_update(request, pk):
+    """Update an existing assignee"""
+    assignee = get_object_or_404(Assignee, pk=pk)
+    
+    if request.method == 'POST':
+        form = AssigneeForm(request.POST, instance=assignee)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Assignee updated successfully!')
+            return redirect('assignee_list')
+    else:
+        form = AssigneeForm(instance=assignee)
+    
+    return render(request, 'tasks/assignee_form.html', {
+        'form': form,
+        'assignee': assignee,
+        'title': 'Update Assignee'
+    })
+
+
+@login_required
+def assignee_delete(request, pk):
+    """Delete an assignee"""
+    assignee = get_object_or_404(Assignee, pk=pk)
+    
+    if request.method == 'POST':
+        assignee.delete()
+        messages.success(request, 'Assignee deleted successfully!')
+        return redirect('assignee_list')
+    
+    return render(request, 'tasks/assignee_confirm_delete.html', {'assignee': assignee})
+
+
+@login_required
+def get_assignee_info(request):
+    """AJAX endpoint to get assignee information for auto-population"""
+    assignee_name = request.GET.get('name')
+    try:
+        assignee = Assignee.objects.get(name=assignee_name)
+        return JsonResponse({
+            'success': True,
+            'email': assignee.email,
+            'location': assignee.location
+        })
+    except Assignee.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Assignee not found'
+        })
 
 
 # Custom login view with signup link

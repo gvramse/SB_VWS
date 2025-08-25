@@ -1,7 +1,28 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Task
+from .models import Task, Assignee
+
+
+class AssigneeForm(forms.ModelForm):
+    """Form for managing assignee information"""
+    class Meta:
+        model = Assignee
+        fields = ['name', 'email', 'location']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter assignee name...'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter assignee email...'
+            }),
+            'location': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter assignee location...'
+            }),
+        }
 
 
 class TaskForm(forms.ModelForm):
@@ -9,13 +30,13 @@ class TaskForm(forms.ModelForm):
         model = Task
         fields = [
             'title', 'description', 'status', 'priority',
-            'assignee_name', 'assignee_email', 'assignee_location',
+            'assigned_by', 'assignee_name', 'assignee_email', 'assignee_location',
             'start_date', 'due_date'
         ]
         widgets = {
-            'title': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Enter task title...'
+            'title': forms.Select(attrs={
+                'class': 'form-select',
+                'id': 'task-title-select'
             }),
             'description': forms.Textarea(attrs={
                 'class': 'form-control',
@@ -28,17 +49,24 @@ class TaskForm(forms.ModelForm):
             'priority': forms.Select(attrs={
                 'class': 'form-select'
             }),
-            'assignee_name': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Enter assignee name...'
+            'assigned_by': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'assignee_name': forms.Select(attrs={
+                'class': 'form-select',
+                'id': 'assignee-name-select'
             }),
             'assignee_email': forms.EmailInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Enter assignee email...'
+                'id': 'assignee-email-field',
+                'readonly': 'readonly',
+                'placeholder': 'Email will auto-populate...'
             }),
             'assignee_location': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Enter assignee location...'
+                'id': 'assignee-location-field',
+                'readonly': 'readonly',
+                'placeholder': 'Location will auto-populate...'
             }),
             'start_date': forms.DateTimeInput(attrs={
                 'class': 'form-control',
@@ -49,6 +77,17 @@ class TaskForm(forms.ModelForm):
                 'type': 'datetime-local'
             }),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Populate assignee choices
+        self.fields['assignee_name'].choices = [('', 'Select assignee...')] + [
+            (assignee.name, assignee.name) for assignee in Assignee.objects.all()
+        ]
+        # Populate assigned_by choices with users
+        self.fields['assigned_by'].choices = [('', 'Select user...')] + [
+            (user.id, f"{user.get_full_name() or user.username}") for user in User.objects.all()
+        ]
 
 
 class CustomUserCreationForm(UserCreationForm):

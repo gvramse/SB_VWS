@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Assignees - Workflow System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-users"></i> Manage Assignees</h1>
+    <a href="{% url 'assignee_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> New Assignee
+    </a>
+</div>
+
+{% if assignees %}
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Location</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for assignee in assignees %}
+                    <tr>
+                        <td>
+                            <strong>{{ assignee.name }}</strong>
+                        </td>
+                        <td>
+                            <a href="mailto:{{ assignee.email }}" class="text-decoration-none">
+                                {{ assignee.email }}
+                            </a>
+                        </td>
+                        <td>
+                            <i class="fas fa-map-marker-alt text-muted me-1"></i>
+                            {{ assignee.location }}
+                        </td>
+                        <td>
+                            <small class="text-muted">{{ assignee.created_at|date:"M d, Y" }}</small>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'assignee_update' assignee.pk %}" class="btn btn-outline-warning" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'assignee_delete' assignee.pk %}" class="btn btn-outline-danger" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="text-center py-5">
+    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+    <h3>No assignees found</h3>
+    <p class="text-muted">Get started by creating your first assignee</p>
+    <a href="{% url 'assignee_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Create New Assignee
+    </a>
+</div>
+{% endif %}
+
+<div class="mt-4">
+    <a href="{% url 'task_list' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Tasks
+    </a>
+</div>
+{% endblock %}
