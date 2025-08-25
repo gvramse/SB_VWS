@@ -18,6 +18,7 @@ urlpatterns = [
     path('assignees/<int:pk>/delete/', views.assignee_delete, name='assignee_delete'),
     path('assignees/bulk-upload/', views.bulk_assignee_upload, name='bulk_assignee_upload'),
     path('assignees/get-info/', views.get_assignee_info, name='get_assignee_info'),
+    path('admin-panel/', views.admin_panel, name='admin_panel'),
     
     path('auth/signup/', views.SignUpView.as_view(), name='signup'),
     path('auth/login/', views.CustomLoginView.as_view(), name='login'),

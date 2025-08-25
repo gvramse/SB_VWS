@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Panel - Samskrita Bharati USA Volunteer Workflow{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-shield-alt"></i> Admin Panel - System Overview</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle"></i> 
+                    <strong>Administrative Portal:</strong> Manage system-wide settings, assignees, and view comprehensive statistics for Samskrita Bharati USA Volunteer Workflow System.
+                </div>
+                
+                <!-- Admin Statistics -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card text-white bg-primary">
+                            <div class="card-body text-center">
+                                <h3>{{ admin_stats.total_assignees|default:0 }}</h3>
+                                <p class="mb-0">Total Assignees</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-white bg-success">
+                            <div class="card-body text-center">
+                                <h3>{{ admin_stats.total_users|default:0 }}</h3>
+                                <p class="mb-0">Total Users</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-white bg-info">
+                            <div class="card-body text-center">
+                                <h3>{{ admin_stats.total_all_tasks|default:0 }}</h3>
+                                <p class="mb-0">All Tasks</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-white bg-warning">
+                            <div class="card-body text-center">
+                                <h3>{{ stats.total_tasks }}</h3>
+                                <p class="mb-0">Your Tasks</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Admin Actions -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="fas fa-users"></i> Assignee Management</h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted">Manage volunteer assignees and their information</p>
+                                <div class="d-grid gap-2">
+                                    <a href="{% url 'assignee_list' %}" class="btn btn-primary">
+                                        <i class="fas fa-users"></i> Manage Assignees
+                                    </a>
+                                    <a href="{% url 'assignee_create' %}" class="btn btn-outline-primary">
+                                        <i class="fas fa-plus"></i> Add New Assignee
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0"><i class="fas fa-upload"></i> Bulk Operations</h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted">Upload multiple assignees at once using CSV files</p>
+                                <div class="d-grid gap-2">
+                                    <a href="{% url 'assignee_list' %}" class="btn btn-success">
+                                        <i class="fas fa-upload"></i> Bulk Upload
+                                    </a>
+                                    <a href="#" class="btn btn-outline-success" onclick="downloadCSVTemplate()">
+                                        <i class="fas fa-download"></i> Download Template
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header bg-secondary text-white">
+                                <h5 class="mb-0"><i class="fas fa-tachometer-alt"></i> Quick Actions</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary w-100 mb-2">
+                                            <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+                                        </a>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <a href="{% url 'home' %}" class="btn btn-outline-secondary w-100 mb-2">
+                                            <i class="fas fa-home"></i> Go to Home
+                                        </a>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <a href="/admin/" class="btn btn-outline-secondary w-100 mb-2" target="_blank">
+                                            <i class="fas fa-cog"></i> Django Admin
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function downloadCSVTemplate() {
+    // Create CSV content
+    const csvContent = 'Name,Email,Location\nJohn Doe,john.doe@example.com,New York, NY\nJane Smith,jane.smith@example.com,Los Angeles, CA\nBob Johnson,bob.johnson@example.com,Chicago, IL';
+    
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'assignees_template.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+</script>
+{% endblock %}

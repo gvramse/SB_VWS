@@ -363,3 +363,30 @@ def auto_logout(request):
     if request.user.is_authenticated:
         auth_logout(request)
     return JsonResponse({'status': 'logged_out'})
+
+
+@login_required
+def admin_panel(request):
+    """Admin panel view for system overview and management."""
+    if not (request.user.is_staff or request.user.is_superuser):
+        messages.error(request, "Access denied. Admin privileges required.")
+        return redirect('dashboard')
+    
+    # Get admin statistics
+    admin_stats = {
+        'total_assignees': Assignee.objects.count(),
+        'total_users': User.objects.count(),
+        'total_all_tasks': Task.objects.count(),
+    }
+    
+    # Get user's personal task stats
+    stats = {
+        'total_tasks': Task.objects.filter(assignee_name=request.user.get_full_name() or request.user.username).count(),
+    }
+    
+    context = {
+        'admin_stats': admin_stats,
+        'stats': stats,
+    }
+    
+    return render(request, 'tasks/admin_panel.html', context)
