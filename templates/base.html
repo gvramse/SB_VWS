@@ -58,7 +58,7 @@
     {% if user.is_authenticated and request.resolver_match.url_name != 'home' %}
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'dashboard' %}">
+            <a class="nav-link" href="{% url 'dashboard' %}">
                 <i class="fas fa-tasks"></i> Dashboard
             </a>
             
