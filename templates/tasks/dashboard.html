@@ -3,50 +3,18 @@
 {% block title %}Dashboard - Samskrita Bharati USA Volunteer Workflow{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12">
-        <h1><i class="fas fa-tachometer-alt"></i> Volunteer Dashboard</h1>
-        <p class="text-muted">
-            नमस्ते {{ user.get_full_name|default:user.username }}! Welcome to the Samskrita Bharati USA Volunteer Workflow System.
-        </p>
-        <div class="alert alert-info" role="alert">
-            <i class="fas fa-info-circle"></i> 
-            <strong>Volunteer Portal:</strong> Manage your volunteer tasks and assignments for Samskrita Bharati USA activities.
-        </div>
-    </div>
-</div>
-
-<!-- Navigation Buttons Row -->
+<!-- Admin Section for Assignee Management (Above Dashboard Label) -->
+{% if user.is_staff or user.is_superuser %}
 <div class="row mb-4">
     <div class="col-12">
-        <div class="d-flex gap-2 flex-wrap">
-            <a href="{% url 'dashboard' %}" class="btn btn-primary">
-                <i class="fas fa-tachometer-alt"></i> Dashboard
-            </a>
-            <a href="{% url 'home' %}" class="btn btn-outline-primary">
-                <i class="fas fa-home"></i> Home
-            </a>
-            {% if user.is_staff or user.is_superuser %}
-            <a href="{% url 'assignee_list' %}" class="btn btn-outline-info">
-                <i class="fas fa-users"></i> Manage Assignees
-            </a>
-            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#adminPanel" aria-expanded="false" aria-controls="adminPanel">
-                <i class="fas fa-shield-alt"></i> Admin Panel
-            </button>
-            {% endif %}
-        </div>
-    </div>
-</div>
-
-<!-- Admin Section for Assignee Management (Collapsible) -->
-{% if user.is_staff or user.is_superuser %}
-<div class="collapse" id="adminPanel">
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-primary">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-shield-alt"></i> Admin Panel - System Overview</h5>
-                </div>
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-shield-alt"></i> Admin Panel - System Overview</h5>
+                <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#adminPanel" aria-expanded="true" aria-controls="adminPanel">
+                    <i class="fas fa-chevron-up"></i> Collapse
+                </button>
+            </div>
+            <div class="collapse show" id="adminPanel">
                 <div class="card-body">
                     <!-- Admin Statistics -->
                     <div class="row mb-4">
@@ -109,6 +77,19 @@
     </div>
 </div>
 {% endif %}
+
+<div class="row">
+    <div class="col-12">
+        <h1><i class="fas fa-tachometer-alt"></i> Volunteer Dashboard</h1>
+        <p class="text-muted">
+            नमस्ते {{ user.get_full_name|default:user.username }}! Welcome to the Samskrita Bharati USA Volunteer Workflow System.
+        </p>
+        <div class="alert alert-info" role="alert">
+            <i class="fas fa-info-circle"></i> 
+            <strong>Volunteer Portal:</strong> Manage your volunteer tasks and assignments for Samskrita Bharati USA activities.
+        </div>
+    </div>
+</div>
 
 <div class="row mb-4">
     <div class="col-md-3">
@@ -256,6 +237,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const adminPanel = document.getElementById('adminPanel');
     if (adminPanel) {
         adminPanel.addEventListener('show.bs.collapse', function() {
+            this.style.transition = 'all 0.3s ease-in-out';
+        });
+        adminPanel.addEventListener('hide.bs.collapse', function() {
             this.style.transition = 'all 0.3s ease-in-out';
         });
     }
