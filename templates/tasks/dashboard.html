@@ -140,10 +140,122 @@
         </div>
     </div>
 </div>
+
+<!-- Admin Panel Section (Hidden by default, shown when Admin Panel button is clicked) -->
+{% if user.is_staff or user.is_superuser %}
+<div class="row mt-4" id="adminPanelSection" style="display: none;">
+    <div class="col-12">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-shield-alt"></i> Admin Panel - System Overview</h5>
+                <button class="btn btn-outline-light btn-sm" type="button" onclick="toggleAdminPanel()">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+            <div class="card-body">
+                <!-- Admin Statistics -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h3 class="text-primary">{{ admin_stats.total_assignees|default:0 }}</h3>
+                            <p class="text-muted mb-0">Total Assignees</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h3 class="text-success">{{ admin_stats.total_users|default:0 }}</h3>
+                            <p class="text-muted mb-0">Total Users</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h3 class="text-info">{{ admin_stats.total_all_tasks|default:0 }}</h3>
+                            <p class="text-muted mb-0">All Tasks</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h3 class="text-warning">{{ stats.total_tasks }}</h3>
+                            <p class="text-muted mb-0">Your Tasks</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Admin Actions -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-users text-primary"></i> Current Assignees</h6>
+                        <p class="text-muted">Manage volunteer assignees and their information</p>
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'assignee_list' %}" class="btn btn-primary">
+                                <i class="fas fa-users"></i> Manage Assignees
+                            </a>
+                            <a href="{% url 'assignee_create' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-plus"></i> Add New Assignee
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-upload text-success"></i> Bulk Operations</h6>
+                        <p class="text-muted">Upload multiple assignees at once using CSV files</p>
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'assignee_list' %}" class="btn btn-success">
+                                <i class="fas fa-upload"></i> Bulk Upload
+                            </a>
+                            <a href="#" class="btn btn-outline-success" onclick="downloadCSVTemplate()">
+                                <i class="fas fa-download"></i> Download Template
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
 <script>
-// No additional JavaScript needed
+function downloadCSVTemplate() {
+    // Create CSV content
+    const csvContent = 'Name,Email,Location\nJohn Doe,john.doe@example.com,New York, NY\nJane Smith,jane.smith@example.com,Los Angeles, CA\nBob Johnson,bob.johnson@example.com,Chicago, IL';
+    
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'assignees_template.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+
+// Admin Panel toggle functionality
+function toggleAdminPanel() {
+    const adminPanelSection = document.getElementById('adminPanelSection');
+    if (adminPanelSection) {
+        if (adminPanelSection.style.display === 'none') {
+            adminPanelSection.style.display = 'block';
+            // Scroll to admin panel section
+            adminPanelSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+            adminPanelSection.style.display = 'none';
+        }
+    }
+}
+
+// Add event listener to Admin Panel button in navigation
+document.addEventListener('DOMContentLoaded', function() {
+    const adminPanelBtn = document.getElementById('adminPanelBtn');
+    if (adminPanelBtn) {
+        adminPanelBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            toggleAdminPanel();
+        });
+    }
+});
 </script>
 {% endblock %}
