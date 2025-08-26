@@ -32,13 +32,12 @@ class BulkAssigneeUploadForm(forms.Form):
         help_text='Upload a CSV file with columns: Name, Email, Location',
         widget=forms.FileInput(attrs={
             'class': 'form-control',
-            'accept': '.csv',
-            'id': 'csv-upload'
+            'accept': '.csv'
         })
     )
     
     def clean_csv_file(self):
-        csv_file = self.cleaned_data['csv_file']
+        csv_file = self.cleaned_data.get('csv_file')
         
         # Check file extension
         if not csv_file.name.endswith('.csv'):
@@ -85,14 +84,12 @@ class TaskForm(forms.ModelForm):
             'assignee_email': forms.EmailInput(attrs={
                 'class': 'form-control',
                 'id': 'assignee-email-field',
-                'readonly': 'readonly',
-                'placeholder': 'Email will auto-populate...'
+                'placeholder': 'Email will auto-populate when assignee is selected...'
             }),
             'assignee_location': forms.TextInput(attrs={
                 'class': 'form-control',
                 'id': 'assignee-location-field',
-                'readonly': 'readonly',
-                'placeholder': 'Location will auto-populate...'
+                'placeholder': 'Location will auto-populate when assignee is selected...'
             }),
             'start_date': forms.DateTimeInput(attrs={
                 'class': 'form-control',

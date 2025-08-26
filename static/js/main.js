@@ -1,6 +1,12 @@
 // Main JavaScript for Workflow System
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize mobile navigation
+    initializeMobileNavigation();
+    
+    // Initialize touch support
+    initializeTouchSupport();
+    
     // Auto-hide alerts after 5 seconds
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
@@ -85,7 +91,183 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 500);
         });
     }
+    
+    // Mobile-specific enhancements
+    enhanceMobileExperience();
 });
+
+// Mobile Navigation Functions
+function initializeMobileNavigation() {
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const mobileNavOverlay = document.getElementById('mobileNavOverlay');
+    const closeMobileNav = document.getElementById('closeMobileNav');
+    
+    if (mobileMenuToggle && mobileNavOverlay) {
+        mobileMenuToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            mobileNavOverlay.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        });
+        
+        if (closeMobileNav) {
+            closeMobileNav.addEventListener('click', function() {
+                mobileNavOverlay.classList.remove('show');
+                document.body.style.overflow = '';
+            });
+        }
+        
+        // Close on overlay click
+        mobileNavOverlay.addEventListener('click', function(e) {
+            if (e.target === mobileNavOverlay) {
+                mobileNavOverlay.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        });
+        
+        // Close on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && mobileNavOverlay.classList.contains('show')) {
+                mobileNavOverlay.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        });
+        
+        // Close on navigation link click
+        const mobileNavLinks = mobileNavOverlay.querySelectorAll('a');
+        mobileNavLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                mobileNavOverlay.classList.remove('show');
+                document.body.style.overflow = '';
+            });
+        });
+    }
+}
+
+// Touch Support Functions
+function initializeTouchSupport() {
+    // Add touch feedback to buttons
+    const buttons = document.querySelectorAll('.btn, .nav-link, .list-group-item');
+    buttons.forEach(button => {
+        button.addEventListener('touchstart', function() {
+            this.style.transform = 'scale(0.98)';
+            this.style.transition = 'transform 0.1s ease';
+        });
+        
+        button.addEventListener('touchend', function() {
+            this.style.transform = 'scale(1)';
+        });
+        
+        button.addEventListener('touchcancel', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+    
+    // Prevent double-tap zoom on mobile
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function(event) {
+        const now = (new Date()).getTime();
+        if (now - lastTouchEnd <= 300) {
+            event.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, false);
+    
+    // Add swipe support for mobile navigation
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    document.addEventListener('touchstart', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+    });
+    
+    document.addEventListener('touchend', function(e) {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    });
+    
+    function handleSwipe() {
+        const mobileNavOverlay = document.getElementById('mobileNavOverlay');
+        if (!mobileNavOverlay) return;
+        
+        const swipeThreshold = 50;
+        const swipeDistance = touchEndX - touchStartX;
+        
+        if (swipeDistance > swipeThreshold && touchStartX < 50) {
+            // Swipe right from left edge - open menu
+            if (!mobileNavOverlay.classList.contains('show')) {
+                mobileNavOverlay.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+        } else if (swipeDistance < -swipeThreshold && mobileNavOverlay.classList.contains('show')) {
+            // Swipe left - close menu
+            mobileNavOverlay.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+    }
+}
+
+// Mobile Experience Enhancements
+function enhanceMobileExperience() {
+    // Improve table scrolling on mobile
+    const tables = document.querySelectorAll('.table-responsive');
+    tables.forEach(table => {
+        if (window.innerWidth <= 768) {
+            table.style.overflowX = 'auto';
+            table.style.webkitOverflowScrolling = 'touch';
+        }
+    });
+    
+    // Improve form inputs on mobile
+    const formInputs = document.querySelectorAll('input, select, textarea');
+    formInputs.forEach(input => {
+        if (window.innerWidth <= 768) {
+            // Add mobile-friendly attributes
+            if (input.type === 'text' || input.type === 'email' || input.type === 'password') {
+                input.setAttribute('autocomplete', 'off');
+                input.setAttribute('autocorrect', 'off');
+                input.setAttribute('autocapitalize', 'off');
+                input.setAttribute('spellcheck', 'false');
+            }
+            
+            // Improve number input on mobile
+            if (input.type === 'number') {
+                input.setAttribute('inputmode', 'numeric');
+                input.setAttribute('pattern', '[0-9]*');
+            }
+        }
+    });
+    
+    // Improve button groups on mobile
+    const buttonGroups = document.querySelectorAll('.btn-group');
+    buttonGroups.forEach(group => {
+        if (window.innerWidth <= 768) {
+            group.classList.add('btn-group-vertical');
+            group.classList.remove('btn-group');
+        }
+    });
+    
+    // Add mobile-friendly spacing
+    if (window.innerWidth <= 768) {
+        document.body.classList.add('mobile-device');
+    }
+    
+    // Handle orientation change
+    window.addEventListener('orientationchange', function() {
+        setTimeout(function() {
+            // Recalculate mobile enhancements after orientation change
+            enhanceMobileExperience();
+        }, 100);
+    });
+    
+    // Handle resize events
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function() {
+            enhanceMobileExperience();
+        }, 250);
+    });
+}
 
 // Helper function to get CSRF token
 function getCookie(name) {
@@ -114,7 +296,14 @@ function getCookie(name) {
 function showNotification(message, type = 'info') {
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-    alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 1050; min-width: 300px;';
+    
+    // Mobile-friendly positioning
+    if (window.innerWidth <= 768) {
+        alertDiv.style.cssText = 'top: 10px; left: 10px; right: 10px; z-index: 1050; margin: 0;';
+    } else {
+        alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 1050; min-width: 300px;';
+    }
+    
     alertDiv.innerHTML = `
         ${message}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -168,28 +357,44 @@ document.addEventListener('submit', function(e) {
     }
 });
 
-// Keyboard shortcuts
-document.addEventListener('keydown', function(e) {
-    // Ctrl+N or Cmd+N to create new task (when not in input field)
-    if ((e.ctrlKey || e.metaKey) && e.key === 'n' && !e.target.matches('input, textarea, select')) {
-        e.preventDefault();
-        const createButton = document.querySelector('[href*="create"]');
-        if (createButton) {
-            window.location.href = createButton.href;
-        }
-    }
-    
-    // Escape key to go back or close modals
-    if (e.key === 'Escape') {
-        const modal = document.querySelector('.modal.show');
-        if (modal) {
-            const bsModal = bootstrap.Modal.getInstance(modal);
-            if (bsModal) bsModal.hide();
-        } else {
-            const backButton = document.querySelector('.btn-secondary[href*="back"], .btn-secondary[href*="list"]');
-            if (backButton) {
-                window.location.href = backButton.href;
+// Keyboard shortcuts (desktop only)
+if (window.innerWidth > 768) {
+    document.addEventListener('keydown', function(e) {
+        // Ctrl+N or Cmd+N to create new task (when not in input field)
+        if ((e.ctrlKey || e.metaKey) && e.key === 'n' && !e.target.matches('input, textarea, select')) {
+            e.preventDefault();
+            const createButton = document.querySelector('[href*="create"]');
+            if (createButton) {
+                window.location.href = createButton.href;
             }
         }
-    }
-});
+        
+        // Escape key to go back or close modals
+        if (e.key === 'Escape') {
+            const modal = document.querySelector('.modal.show');
+            if (modal) {
+                const bsModal = bootstrap.Modal.getInstance(modal);
+                if (bsModal) bsModal.hide();
+            } else {
+                const backButton = document.querySelector('.btn-secondary[href*="back"], .btn-secondary[href*="list"]');
+                if (backButton) {
+                    window.location.href = backButton.href;
+                }
+            }
+        }
+    });
+}
+
+// Mobile-specific keyboard shortcuts
+if (window.innerWidth <= 768) {
+    document.addEventListener('keydown', function(e) {
+        // Escape key to close mobile navigation
+        if (e.key === 'Escape') {
+            const mobileNavOverlay = document.getElementById('mobileNavOverlay');
+            if (mobileNavOverlay && mobileNavOverlay.classList.contains('show')) {
+                mobileNavOverlay.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        }
+    });
+}

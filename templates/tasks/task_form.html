@@ -4,48 +4,60 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-8">
+    <div class="col-12 col-lg-8">
         <div class="card">
             <div class="card-header">
-                <h4>{{ title }}</h4>
+                <h4 class="mb-0"><i class="fas fa-edit"></i> {{ title }}</h4>
             </div>
             <div class="card-body">
-                <form method="post">
+                <form method="post" class="needs-validation" novalidate>
                     {% csrf_token %}
                     
+                    <!-- Task Title -->
                     <div class="mb-3">
-                        <label for="{{ form.title.id_for_label }}" class="form-label">Task Title *</label>
+                        <label for="{{ form.title.id_for_label }}" class="form-label fw-bold">
+                            <i class="fas fa-heading"></i> Task Title *
+                        </label>
                         {{ form.title }}
                         {% if form.title.errors %}
-                            <div class="text-danger">{{ form.title.errors }}</div>
+                            <div class="text-danger small">{{ form.title.errors }}</div>
                         {% endif %}
+                        <div class="form-text">Enter a clear, descriptive title for the task</div>
                     </div>
                     
+                    <!-- Description -->
                     <div class="mb-3">
-                        <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                        <label for="{{ form.description.id_for_label }}" class="form-label fw-bold">
+                            <i class="fas fa-align-left"></i> Description
+                        </label>
                         {{ form.description }}
                         {% if form.description.errors %}
-                            <div class="text-danger">{{ form.description.errors }}</div>
+                            <div class="text-danger small">{{ form.description.errors }}</div>
                         {% endif %}
+                        <div class="form-text">Provide detailed information about what needs to be done</div>
                     </div>
                     
                     <!-- Status and Priority -->
-                    <div class="row">
-                        <div class="col-md-6">
+                    <div class="row g-3 mb-3">
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                                <label for="{{ form.status.id_for_label }}" class="form-label fw-bold">
+                                    <i class="fas fa-tasks"></i> Status
+                                </label>
                                 {{ form.status }}
                                 {% if form.status.errors %}
-                                    <div class="text-danger">{{ form.status.errors }}</div>
+                                    <div class="text-danger small">{{ form.status.errors }}</div>
                                 {% endif %}
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-12 col-md-6">
                             <div class="mb-3">
-                                <label for="{{ form.priority.id_for_label }}" class="form-label">Priority</label>
+                                <label for="{{ form.priority.id_for_label }}" class="form-label fw-bold">
+                                    <i class="fas fa-exclamation-triangle"></i> Priority
+                                </label>
                                 {{ form.priority }}
                                 {% if form.priority.errors %}
-                                    <div class="text-danger">{{ form.priority.errors }}</div>
+                                    <div class="text-danger small">{{ form.priority.errors }}</div>
                                 {% endif %}
                             </div>
                         </div>
@@ -53,52 +65,68 @@
                     
                     <!-- Assignment Information -->
                     <div class="card bg-light mb-3">
-                        <div class="card-header">
+                        <div class="card-header bg-primary text-white">
                             <h6 class="mb-0"><i class="fas fa-user-tie"></i> Assignment Information</h6>
                         </div>
                         <div class="card-body">
                             <div class="mb-3">
-                                <label for="{{ form.assigned_by.id_for_label }}" class="form-label">Assigned By</label>
+                                <label for="{{ form.assigned_by.id_for_label }}" class="form-label fw-bold">
+                                    <i class="fas fa-user"></i> Assigned By
+                                </label>
                                 {{ form.assigned_by }}
                                 {% if form.assigned_by.errors %}
-                                    <div class="text-danger">{{ form.assigned_by.errors }}</div>
+                                    <div class="text-danger small">{{ form.assigned_by.errors }}</div>
                                 {% endif %}
+                                <div class="form-text">Who is assigning this task</div>
                             </div>
                         </div>
                     </div>
                     
                     <!-- Assignee Information -->
                     <div class="card bg-light mb-3">
-                        <div class="card-header">
+                        <div class="card-header bg-info text-white">
                             <h6 class="mb-0"><i class="fas fa-user"></i> Assignee Information</h6>
                         </div>
                         <div class="card-body">
                             <div class="mb-3">
-                                <label for="{{ form.assignee_name.id_for_label }}" class="form-label">Assignee Name</label>
+                                <label for="{{ form.assignee_name.id_for_label }}" class="form-label fw-bold">
+                                    <i class="fas fa-user-check"></i> Assignee Name
+                                </label>
                                 {{ form.assignee_name }}
                                 {% if form.assignee_name.errors %}
-                                    <div class="text-danger">{{ form.assignee_name.errors }}</div>
+                                    <div class="text-danger small">{{ form.assignee_name.errors }}</div>
                                 {% endif %}
-                                <div class="form-text">Select from existing assignees or <a href="{% url 'assignee_create' %}" target="_blank">create new one</a></div>
+                                <div class="form-text">
+                                    Select from existing assignees or 
+                                    <a href="{% url 'assignee_create' %}" target="_blank" class="text-decoration-none">
+                                        <i class="fas fa-plus-circle"></i> create new one
+                                    </a>
+                                </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6">
+                            
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6">
                                     <div class="mb-3">
-                                        <label for="{{ form.assignee_email.id_for_label }}" class="form-label">Assignee Email</label>
+                                        <label for="{{ form.assignee_email.id_for_label }}" class="form-label fw-bold">
+                                            <i class="fas fa-envelope"></i> Email
+                                        </label>
                                         {{ form.assignee_email }}
                                         {% if form.assignee_email.errors %}
-                                            <div class="text-danger">{{ form.assignee_email.errors }}</div>
+                                            <div class="text-danger small">{{ form.assignee_email.errors }}</div>
                                         {% endif %}
-                                        <div class="form-text">Email notifications will be sent to this address</div>
+                                        <div class="form-text">Email for notifications</div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-12 col-md-6">
                                     <div class="mb-3">
-                                        <label for="{{ form.assignee_location.id_for_label }}" class="form-label">Assignee Location</label>
+                                        <label for="{{ form.assignee_location.id_for_label }}" class="form-label fw-bold">
+                                            <i class="fas fa-map-marker-alt"></i> Location
+                                        </label>
                                         {{ form.assignee_location }}
                                         {% if form.assignee_location.errors %}
-                                            <div class="text-danger">{{ form.assignee_location.errors }}</div>
+                                            <div class="text-danger small">{{ form.assignee_location.errors }}</div>
                                         {% endif %}
+                                        <div class="form-text">City, State or Region</div>
                                     </div>
                                 </div>
                             </div>
@@ -106,33 +134,60 @@
                     </div>
                     
                     <!-- Dates -->
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="{{ form.start_date.id_for_label }}" class="form-label">Start Date</label>
-                                {{ form.start_date }}
-                                {% if form.start_date.errors %}
-                                    <div class="text-danger">{{ form.start_date.errors }}</div>
-                                {% endif %}
-                            </div>
+                    <div class="card bg-light mb-3">
+                        <div class="card-header bg-warning text-dark">
+                            <h6 class="mb-0"><i class="fas fa-calendar-alt"></i> Important Dates</h6>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="{{ form.due_date.id_for_label }}" class="form-label">Due Date</label>
-                                {{ form.due_date }}
-                                {% if form.due_date.errors %}
-                                    <div class="text-danger">{{ form.due_date.errors }}</div>
-                                {% endif %}
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.start_date.id_for_label }}" class="form-label fw-bold">
+                                            <i class="fas fa-play"></i> Start Date
+                                        </label>
+                                        {{ form.start_date }}
+                                        {% if form.start_date.errors %}
+                                            <div class="text-danger small">{{ form.start_date.errors }}</div>
+                                        {% endif %}
+                                        <div class="form-text">When the task should begin</div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="mb-3">
+                                        <label for="{{ form.due_date.id_for_label }}" class="form-label fw-bold">
+                                            <i class="fas fa-flag-checkered"></i> Due Date
+                                        </label>
+                                        {{ form.due_date }}
+                                        {% if form.due_date.errors %}
+                                            <div class="text-danger small">{{ form.due_date.errors }}</div>
+                                        {% endif %}
+                                        <div class="form-text">When the task should be completed</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="d-flex justify-content-between">
-                        <a href="{% if task %}{% url 'task_detail' task.pk %}{% else %}{% url 'task_list' %}{% endif %}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left"></i> Cancel
+                    <!-- Additional Notes -->
+                    <div class="mb-3">
+                        <label for="{{ form.notes.id_for_label }}" class="form-label fw-bold">
+                            <i class="fas fa-sticky-note"></i> Additional Notes
+                        </label>
+                        {{ form.notes }}
+                        {% if form.notes.errors %}
+                            <div class="text-danger small">{{ form.notes.errors }}</div>
+                        {% endif %}
+                        <div class="form-text">Any additional information or special instructions</div>
+                    </div>
+                    
+                    <!-- Form Actions -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'task_list' %}" class="btn btn-secondary btn-lg me-md-2">
+                            <i class="fas fa-arrow-left"></i> <span class="d-none d-md-inline">Cancel</span>
                         </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Save Task
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save"></i> <span class="d-none d-md-inline">Save Task</span>
+                            <span class="d-inline d-md-none">Save</span>
                         </button>
                     </div>
                 </form>
@@ -145,40 +200,133 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const assigneeSelect = document.getElementById('assignee-name-select');
-    const emailField = document.getElementById('assignee-email-field');
-    const locationField = document.getElementById('assignee-location-field');
+    // Get form elements
+    const assigneeSelect = document.getElementById('{{ form.assignee_name.id_for_label }}');
+    const emailField = document.getElementById('{{ form.assignee_email.id_for_label }}');
+    const locationField = document.getElementById('{{ form.assignee_location.id_for_label }}');
     
-    if (assigneeSelect && emailField && locationField) {
+    // Remove readonly attribute from email and location fields
+    if (emailField) emailField.removeAttribute('readonly');
+    if (locationField) locationField.removeAttribute('readonly');
+    
+    // Function to fetch assignee information
+    function fetchAssigneeInfo(assigneeName) {
+        if (!assigneeName) {
+            // Clear fields if no assignee selected
+            if (emailField) emailField.value = '';
+            if (locationField) locationField.value = '';
+            return;
+        }
+        
+        // Fetch assignee information via AJAX
+        fetch(`/assignees/get-info/?name=${encodeURIComponent(assigneeName)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (emailField) emailField.value = data.email;
+                    if (locationField) locationField.value = data.location;
+                } else {
+                    // Clear fields if assignee not found
+                    if (emailField) emailField.value = '';
+                    if (locationField) locationField.value = '';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching assignee info:', error);
+                // Clear fields on error
+                if (emailField) emailField.value = '';
+                if (locationField) locationField.value = '';
+            });
+    }
+    
+    // Add event listener to assignee select
+    if (assigneeSelect) {
         assigneeSelect.addEventListener('change', function() {
             const selectedAssignee = this.value;
-            
-            if (selectedAssignee) {
-                // Fetch assignee information via AJAX
-                fetch(`/assignees/get-info/?name=${encodeURIComponent(selectedAssignee)}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            emailField.value = data.email;
-                            locationField.value = data.location;
-                        } else {
-                            // Clear fields if assignee not found
-                            emailField.value = '';
-                            locationField.value = '';
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching assignee info:', error);
-                        emailField.value = '';
-                        locationField.value = '';
-                    });
-            } else {
-                // Clear fields if no assignee selected
-                emailField.value = '';
-                locationField.value = '';
+            fetchAssigneeInfo(selectedAssignee);
+        });
+        
+        // Also trigger on initial load if there's a pre-selected value
+        if (assigneeSelect.value) {
+            fetchAssigneeInfo(assigneeSelect.value);
+        }
+    }
+    
+    // Enhance form inputs for mobile
+    const formInputs = document.querySelectorAll('input, select, textarea');
+    formInputs.forEach(input => {
+        if (window.innerWidth <= 768) {
+            // Add mobile-friendly attributes
+            if (input.type === 'text' || input.type === 'email') {
+                input.setAttribute('autocomplete', 'off');
+                input.setAttribute('autocorrect', 'off');
+                input.setAttribute('autocapitalize', 'off');
+                input.setAttribute('spellcheck', 'false');
             }
+            
+            // Improve date inputs on mobile
+            if (input.type === 'date') {
+                input.setAttribute('inputmode', 'none');
+            }
+        }
+    });
+    
+    // Form validation
+    const form = document.querySelector('.needs-validation');
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
         });
     }
+    
+    // Auto-save draft functionality
+    let autoSaveTimeout;
+    const formFields = form.querySelectorAll('input, select, textarea');
+    
+    formFields.forEach(field => {
+        field.addEventListener('input', function() {
+            clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(() => {
+                // Save form data to localStorage as draft
+                const formData = new FormData(form);
+                const draftData = {};
+                for (let [key, value] of formData.entries()) {
+                    draftData[key] = value;
+                }
+                localStorage.setItem('taskFormDraft', JSON.stringify(draftData));
+            }, 1000);
+        });
+    });
+    
+    // Load draft on page load
+    const savedDraft = localStorage.getItem('taskFormDraft');
+    if (savedDraft && !form.querySelector('input[name="title"]').value) {
+        try {
+            const draftData = JSON.parse(savedDraft);
+            Object.keys(draftData).forEach(key => {
+                const field = form.querySelector(`[name="${key}"]`);
+                if (field && field.type !== 'file') {
+                    field.value = draftData[key];
+                }
+            });
+            
+            // Trigger assignee info fetch if assignee is loaded from draft
+            if (assigneeSelect && assigneeSelect.value) {
+                fetchAssigneeInfo(assigneeSelect.value);
+            }
+        } catch (e) {
+            console.error('Error loading draft:', e);
+        }
+    }
+    
+    // Clear draft on successful submit
+    form.addEventListener('submit', function() {
+        localStorage.removeItem('taskFormDraft');
+    });
 });
 </script>
 {% endblock %}

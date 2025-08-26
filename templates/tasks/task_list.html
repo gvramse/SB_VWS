@@ -5,9 +5,9 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><i class="fas fa-list"></i> My Volunteer Tasks</h1>
-    <div>
-        <a href="{% url 'assignee_list' %}" class="btn btn-info me-2">
-            <i class="fas fa-users"></i> Manage Assignees
+    <div class="d-flex flex-column flex-md-row gap-2">
+        <a href="{% url 'assignee_list' %}" class="btn btn-info">
+            <i class="fas fa-users"></i> <span class="d-none d-md-inline">Manage Assignees</span>
         </a>
         <a href="{% url 'task_create' %}" class="btn btn-primary">
             <i class="fas fa-plus"></i> New Task
@@ -17,7 +17,25 @@
 
 <!-- Quick Status Filters -->
 <div class="mb-3">
-    <div class="btn-group" role="group" aria-label="Status filters">
+    <div class="btn-group-vertical btn-group-sm d-md-none w-100" role="group" aria-label="Status filters">
+        <a href="{% url 'task_list' %}" class="btn {% if not status_filter %}btn-primary{% else %}btn-outline-primary{% endif %} text-start">
+            <i class="fas fa-list"></i> All Tasks
+        </a>
+        <a href="{% url 'task_list' %}?status=pending" class="btn {% if status_filter == 'pending' %}btn-warning{% else %}btn-outline-warning{% endif %} text-start">
+            <i class="fas fa-clock"></i> Pending
+        </a>
+        <a href="{% url 'task_list' %}?status=in_progress" class="btn {% if status_filter == 'in_progress' %}btn-info{% else %}btn-outline-info{% endif %} text-start">
+            <i class="fas fa-spinner"></i> In Progress
+        </a>
+        <a href="{% url 'task_list' %}?status=completed" class="btn {% if status_filter == 'completed' %}btn-success{% else %}btn-outline-success{% endif %} text-start">
+            <i class="fas fa-check"></i> Completed
+        </a>
+        <a href="{% url 'task_list' %}?status=cancelled" class="btn {% if status_filter == 'cancelled' %}btn-danger{% else %}btn-outline-danger{% endif %} text-start">
+            <i class="fas fa-times"></i> Cancelled
+        </a>
+    </div>
+    
+    <div class="btn-group d-none d-md-flex" role="group" aria-label="Status filters">
         <a href="{% url 'task_list' %}" class="btn {% if not status_filter %}btn-primary{% else %}btn-outline-primary{% endif %}">
             <i class="fas fa-list"></i> All
         </a>
@@ -40,10 +58,10 @@
 <div class="card mb-4">
     <div class="card-body">
         <form method="get" class="row g-3">
-            <div class="col-md-6">
+            <div class="col-12 col-md-6">
                 <input type="text" class="form-control" name="search" placeholder="Search tasks..." value="{{ search_query }}">
             </div>
-            <div class="col-md-4">
+            <div class="col-12 col-md-4">
                 <select name="status" class="form-select">
                     <option value="">All Status</option>
                     {% for value, label in status_choices %}
@@ -51,9 +69,9 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-2">
+            <div class="col-12 col-md-2">
                 <button type="submit" class="btn btn-outline-primary w-100">
-                    <i class="fas fa-search"></i> Filter
+                    <i class="fas fa-search"></i> <span class="d-none d-md-inline">Filter</span>
                 </button>
             </div>
         </form>
@@ -64,119 +82,203 @@
 {% if page_obj %}
 <div class="card">
     <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Task Title</th>
-                        <th>Assigned By</th>
-                        <th>Assignee</th>
-                        <th>Priority</th>
-                        <th>Status</th>
-                        <th>Dates</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for task in page_obj %}
-                    <tr>
-                        <td>
-                            <a href="{% url 'task_detail' task.pk %}" class="text-decoration-none fw-bold">
-                                {{ task.title }}
+        <!-- Mobile Card View -->
+        <div class="d-md-none">
+            {% for task in page_obj %}
+            <div class="card mb-3 border-start border-4 border-{{ task.get_priority_color }}">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="card-title mb-0">
+                            <a href="{% url 'task_detail' task.pk %}" class="text-decoration-none">
+                                {{ task.title|truncatechars:50 }}
                             </a>
-                            {% if task.description %}
-                            <br><small class="text-muted">{{ task.description|truncatewords:8 }}</small>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if task.assigned_by %}
-                                <strong>{{ task.assigned_by.get_full_name|default:task.assigned_by.username }}</strong>
-                            {% else %}
-                                <span class="text-muted">Not specified</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if task.assignee_name %}
-                                <strong>{{ task.assignee_name }}</strong>
-                                {% if task.assignee_email %}
-                                    <br><small class="text-muted">{{ task.assignee_email }}</small>
+                        </h6>
+                        <span class="badge {{ task.get_priority_badge_class }} ms-2">
+                            {{ task.get_priority_display }}
+                        </span>
+                    </div>
+                    
+                    {% if task.description %}
+                    <p class="card-text small text-muted mb-2">
+                        {{ task.description|truncatewords:15 }}
+                    </p>
+                    {% endif %}
+                    
+                    <div class="row g-2 mb-2">
+                        <div class="col-6">
+                            <small class="text-muted d-block">
+                                <i class="fas fa-user"></i> 
+                                {% if task.assigned_by %}
+                                    {{ task.assigned_by.get_full_name|default:task.assigned_by.username|truncatechars:20 }}
+                                {% else %}
+                                    Not specified
                                 {% endif %}
-                                {% if task.assignee_location %}
-                                    <br><small class="text-muted"><i class="fas fa-map-marker-alt"></i> {{ task.assignee_location }}</small>
+                            </small>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">
+                                <i class="fas fa-user-check"></i>
+                                {% if task.assignee_name %}
+                                    {{ task.assignee_name|truncatechars:20 }}
+                                {% else %}
+                                    Unassigned
                                 {% endif %}
-                            {% else %}
-                                <span class="text-muted">Unassigned</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <span class="badge {{ task.get_priority_badge_class }}">
-                                {{ task.get_priority_display }}
-                            </span>
-                        </td>
-                        <td>
-                            <select class="form-select form-select-sm status-select" data-task-id="{{ task.pk }}">
-                                {% for value, label in status_choices %}
-                                <option value="{{ value }}" {% if task.status == value %}selected{% endif %}>{{ label }}</option>
-                                {% endfor %}
-                            </select>
-                        </td>
-                        <td>
-                            {% if task.start_date %}
-                                <small><strong>Start:</strong> {{ task.start_date|date:"M d, Y" }}</small><br>
-                            {% endif %}
-                            {% if task.due_date %}
-                                <small><strong>Due:</strong> {{ task.due_date|date:"M d, Y" }}</small>
-                            {% else %}
-                                <small class="text-muted">No due date</small>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
-                                <a href="{% url 'task_detail' task.pk %}" class="btn btn-outline-info" title="View">
-                                    <i class="fas fa-eye"></i>
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-{% if task.status == 'completed' %}success{% elif task.status == 'in_progress' %}info{% elif task.status == 'cancelled' %}danger{% else %}warning{% endif %}">
+                            {{ task.get_status_display }}
+                        </span>
+                        <small class="text-muted">
+                            {{ task.created_at|date:"M d, Y" }}
+                        </small>
+                    </div>
+                    
+                    <div class="mt-2">
+                        <a href="{% url 'task_detail' task.pk %}" class="btn btn-sm btn-outline-primary me-2">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                        {% if user.is_staff or user.is_superuser %}
+                        <a href="{% url 'task_update' task.pk %}" class="btn btn-sm btn-outline-secondary me-2">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a href="{% url 'task_delete' task.pk %}" class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-trash"></i> Delete
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Desktop Table View -->
+        <div class="d-none d-md-block">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Task Title</th>
+                            <th>Assigned By</th>
+                            <th>Assignee</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Dates</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for task in page_obj %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'task_detail' task.pk %}" class="text-decoration-none fw-bold">
+                                    {{ task.title }}
                                 </a>
-                                <a href="{% url 'task_update' task.pk %}" class="btn btn-outline-warning" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="{% url 'task_delete' task.pk %}" class="btn btn-outline-danger" title="Delete">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                                {% if task.description %}
+                                <br><small class="text-muted">{{ task.description|truncatewords:8 }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if task.assigned_by %}
+                                    <strong>{{ task.assigned_by.get_full_name|default:task.assigned_by.username }}</strong>
+                                {% else %}
+                                    <span class="text-muted">Not specified</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if task.assignee_name %}
+                                    <strong>{{ task.assignee_name }}</strong>
+                                    {% if task.assignee_email %}
+                                        <br><small class="text-muted">{{ task.assignee_email }}</small>
+                                    {% endif %}
+                                    {% if task.assignee_location %}
+                                        <br><small class="text-muted"><i class="fas fa-map-marker-alt"></i> {{ task.assignee_location }}</small>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">Unassigned</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge {{ task.get_priority_badge_class }}">
+                                    {{ task.get_priority_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-{% if task.status == 'completed' %}success{% elif task.status == 'in_progress' %}info{% elif task.status == 'cancelled' %}danger{% else %}warning{% endif %}">
+                                    {{ task.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <small class="text-muted">
+                                    <div><strong>Created:</strong> {{ task.created_at|date:"M d, Y" }}</div>
+                                    {% if task.due_date %}
+                                    <div><strong>Due:</strong> {{ task.due_date|date:"M d, Y" }}</div>
+                                    {% endif %}
+                                    {% if task.completed_at %}
+                                    <div><strong>Completed:</strong> {{ task.completed_at|date:"M d, Y" }}</div>
+                                    {% endif %}
+                                </small>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{% url 'task_detail' task.pk %}" class="btn btn-outline-primary" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if user.is_staff or user.is_superuser %}
+                                    <a href="{% url 'task_update' task.pk %}" class="btn btn-outline-secondary" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'task_delete' task.pk %}" class="btn btn-outline-danger" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- Pagination -->
-{% if page_obj.has_other_pages %}
-<nav aria-label="Tasks pagination" class="mt-4">
+{% if is_paginated %}
+<nav aria-label="Task pagination" class="mt-4">
     <ul class="pagination justify-content-center">
         {% if page_obj.has_previous %}
-        <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">Previous</a>
-        </li>
+            <li class="page-item">
+                <a class="page-link" href="?page=1{% if status_filter %}&status={{ status_filter }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+            </li>
         {% endif %}
         
-        {% for num in page_obj.paginator.page_range %}
-        {% if page_obj.number == num %}
         <li class="page-item active">
-            <span class="page-link">{{ num }}</span>
+            <span class="page-link">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
         </li>
-        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-        <li class="page-item">
-            <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">{{ num }}</a>
-        </li>
-        {% endif %}
-        {% endfor %}
         
         {% if page_obj.has_next %}
-        <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">Next</a>
-        </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            </li>
         {% endif %}
     </ul>
 </nav>
@@ -185,10 +287,10 @@
 {% else %}
 <div class="text-center py-5">
     <i class="fas fa-tasks fa-3x text-muted mb-3"></i>
-    <h3>No tasks found</h3>
-    <p class="text-muted">{% if search_query or status_filter %}Try adjusting your search criteria{% else %}Get started by creating your first task{% endif %}</p>
+    <h4 class="text-muted">No tasks found</h4>
+    <p class="text-muted">No tasks match your current filters.</p>
     <a href="{% url 'task_create' %}" class="btn btn-primary">
-        <i class="fas fa-plus"></i> Create New Task
+        <i class="fas fa-plus"></i> Create Your First Task
     </a>
 </div>
 {% endif %}
