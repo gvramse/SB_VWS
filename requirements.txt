@@ -1,7 +1,6 @@
 # Core Django dependencies
 Django==5.2.5
 python-dotenv==1.0.0
-
 # Database drivers
 psycopg2-binary==2.9.10  # PostgreSQL (for production)
 # Note: SQLite is included with Python for development

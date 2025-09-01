@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚙️ Admin Panel - One-Stop-Shop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .admin-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+        }
+        .btn-action {
+            margin: 2px;
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .nav-tabs .nav-link {
+            border: none;
+            border-radius: 10px 10px 0 0;
+            margin-right: 5px;
+        }
+        .nav-tabs .nav-link.active {
+            background: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-link me-2"></i>One-Stop-Shop
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link active" href="/admin">
+                    <i class="fas fa-cog me-1"></i>Admin
+                </a>
+                <a class="nav-link" href="/">
+                    <i class="fas fa-home me-1"></i>Home
+                </a>
+                <a class="nav-link" href="http://localhost:7860" target="_blank">
+                    <i class="fas fa-palette me-1"></i>Gradio
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <h3><i class="fas fa-link me-2"></i>{{ links|length }}</h3>
+                    <p class="mb-0">Total Links</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <h3><i class="fas fa-folder me-2"></i>{{ categories|length }}</h3>
+                    <p class="mb-0">Categories</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <h3><i class="fas fa-eye me-2"></i>{{ links|length }}</h3>
+                    <p class="mb-0">Active Links</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <h3><i class="fas fa-clock me-2"></i>{{ links|length }}</h3>
+                    <p class="mb-0">Recent Updates</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Tabs -->
+        <ul class="nav nav-tabs" id="adminTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="links-tab" data-bs-toggle="tab" data-bs-target="#links" type="button" role="tab">
+                    <i class="fas fa-link me-1"></i>Manage Links
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="categories-tab" data-bs-toggle="tab" data-bs-target="#categories" type="button" role="tab">
+                    <i class="fas fa-folder me-1"></i>Manage Categories
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="add-tab" data-bs-toggle="tab" data-bs-target="#add" type="button" role="tab">
+                    <i class="fas fa-plus me-1"></i>Quick Add
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="adminTabContent">
+            <!-- Links Management Tab -->
+            <div class="tab-pane fade show active" id="links" role="tabpanel">
+                <div class="card admin-card mt-3">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-link me-2"></i>All Links</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Icon</th>
+                                        <th>Title</th>
+                                        <th>URL</th>
+                                        <th>Category</th>
+                                        <th>Description</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for link in links %}
+                                    <tr>
+                                        <td><span class="h4">{{ link.icon }}</span></td>
+                                        <td><strong>{{ link.title }}</strong></td>
+                                        <td>
+                                            <a href="{{ link.url }}" target="_blank" class="text-decoration-none">
+                                                {{ link.url[:50] }}{% if link.url|length > 50 %}...{% endif %}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ link.category }}</span>
+                                        </td>
+                                        <td>{{ link.description[:50] if link.description else 'No description' }}{% if link.description and link.description|length > 50 %}...{% endif %}</td>
+                                        <td><small>{{ link.created_at.split(' ')[0] if link.created_at else 'N/A' }}</small></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary btn-action" onclick="editLink({{ link.id }})">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger btn-action" onclick="deleteLink({{ link.id }})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories Management Tab -->
+            <div class="tab-pane fade" id="categories" role="tabpanel">
+                <div class="card admin-card mt-3">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-folder me-2"></i>All Categories</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Icon</th>
+                                        <th>Name</th>
+                                        <th>Description</th>
+                                        <th>Color</th>
+                                        <th>Sort Order</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for category in categories %}
+                                    <tr>
+                                        <td><span class="h4">{{ category.icon }}</span></td>
+                                        <td><strong>{{ category.name }}</strong></td>
+                                        <td>{{ category.description or 'No description' }}</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="color-preview me-2" style="width: 20px; height: 20px; background-color: {{ category.color }}; border-radius: 4px;"></div>
+                                                {{ category.color }}
+                                            </div>
+                                        </td>
+                                        <td>{{ category.sort_order }}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary btn-action" onclick="editCategory({{ category.id }})">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Add Tab -->
+            <div class="tab-pane fade" id="add" role="tabpanel">
+                <div class="row mt-3">
+                    <!-- Add Link Form -->
+                    <div class="col-md-6">
+                        <div class="card admin-card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="fas fa-plus me-2"></i>Add New Link</h5>
+                            </div>
+                            <div class="card-body">
+                                <form action="/admin/add-link" method="POST">
+                                    <div class="mb-3">
+                                        <label for="title" class="form-label">Link Title *</label>
+                                        <input type="text" class="form-control" id="title" name="title" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="url" class="form-label">URL *</label>
+                                        <input type="url" class="form-control" id="url" name="url" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="description" class="form-label">Description</label>
+                                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="category" class="form-label">Category</label>
+                                                <select class="form-select" id="category" name="category">
+                                                    {% for category in categories %}
+                                                    <option value="{{ category.name }}">{{ category.icon }} {{ category.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="icon" class="form-label">Icon (emoji)</label>
+                                                <input type="text" class="form-control" id="icon" name="icon" value="🔗" maxlength="2">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fas fa-plus me-1"></i>Add Link
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add Category Form -->
+                    <div class="col-md-6">
+                        <div class="card admin-card">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0"><i class="fas fa-folder-plus me-2"></i>Add New Category</h5>
+                            </div>
+                            <div class="card-body">
+                                <form action="/admin/add-category" method="POST">
+                                    <div class="mb-3">
+                                        <label for="cat_name" class="form-label">Category Name *</label>
+                                        <input type="text" class="form-control" id="cat_name" name="name" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="cat_description" class="form-label">Description</label>
+                                        <textarea class="form-control" id="cat_description" name="description" rows="3"></textarea>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="cat_color" class="form-label">Color</label>
+                                                <input type="color" class="form-control form-control-color" id="cat_color" name="color" value="#007bff">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="cat_icon" class="form-label">Icon (emoji)</label>
+                                                <input type="text" class="form-control" id="cat_icon" name="icon" value="📁" maxlength="2">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="cat_sort_order" class="form-label">Sort Order</label>
+                                        <input type="number" class="form-control" id="cat_sort_order" name="sort_order" value="0" min="0">
+                                    </div>
+                                    <button type="submit" class="btn btn-success w-100">
+                                        <i class="fas fa-folder-plus me-1"></i>Add Category
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <p class="mb-0">
+            <i class="fas fa-code me-1"></i>
+            One-Stop-Shop Admin Panel | 
+            <i class="fas fa-shield-alt me-1"></i>
+            Secure Management Interface
+        </p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Edit link function
+        function editLink(linkId) {
+            // This could be enhanced with a modal for editing
+            alert('Edit functionality for link ID: ' + linkId + ' - Coming soon!');
+        }
+
+        // Delete link function
+        function deleteLink(linkId) {
+            if (confirm('Are you sure you want to delete this link?')) {
+                // This could be enhanced with actual API call
+                alert('Delete functionality for link ID: ' + linkId + ' - Coming soon!');
+            }
+        }
+
+        // Edit category function
+        function editCategory(categoryId) {
+            // This could be enhanced with a modal for editing
+            alert('Edit functionality for category ID: ' + categoryId + ' - Coming soon!');
+        }
+
+        // Auto-refresh data every 60 seconds
+        setInterval(() => {
+            // This could be enhanced to actually refresh the data
+            console.log('Admin panel auto-refresh check...');
+        }, 60000);
+    </script>
+</body>
+</html>
+

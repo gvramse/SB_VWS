@@ -1,0 +1,39 @@
+# Core dependencies for AI Collection Agent
+gradio>=4.0.0
+fastapi>=0.100.0
+uvicorn>=0.20.0
+pydantic>=2.0.0
+
+# Data processing and analysis
+pandas>=2.0.0
+numpy>=1.24.0
+plotly>=5.15.0
+
+# AI and LLM
+openai>=1.0.0
+google-generativeai>=0.3.0
+
+# Communication and notifications
+twilio>=8.0.0
+
+# Database and utilities
+python-dotenv>=1.0.0
+sqlite3  # Built-in with Python
+
+# Additional utilities
+asyncio  # Built-in with Python
+typing  # Built-in with Python
+datetime  # Built-in with Python
+json  # Built-in with Python
+io  # Built-in with Python
+base64  # Built-in with Python
+threading  # Built-in with Python
+logging  # Built-in with Python
+os  # Built-in with Python
+pathlib  # Built-in with Python
+
+# Optional: For enhanced features
+# pytz>=2023.3  # Timezone handling
+# zoneinfo  # Built-in with Python 3.9+
+
+
